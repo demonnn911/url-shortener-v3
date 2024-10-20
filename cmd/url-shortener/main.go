@@ -15,6 +15,7 @@ import (
 
 	"url-shortener-3rd-attempt/internal/config"
 	"url-shortener-3rd-attempt/internal/http-server/handlers/redirect"
+	"url-shortener-3rd-attempt/internal/http-server/handlers/url/delete"
 	"url-shortener-3rd-attempt/internal/http-server/handlers/url/save"
 	mwLogger "url-shortener-3rd-attempt/internal/http-server/middleware/logger"
 	"url-shortener-3rd-attempt/internal/lib/logger/handlers/slogpretty"
@@ -54,15 +55,8 @@ func main() {
 	router.Use(middleware.Recoverer)
 	router.Use(middleware.URLFormat)
 
-	router.Route("/url", func(r chi.Router) {
-		r.Use(middleware.BasicAuth("url-shortener", map[string]string{
-			cfg.HTTPServer.User: cfg.HTTPServer.Password,
-		}))
-
-		r.Post("/", save.New(log, storage))
-		// TODO: add DELETE /url/{id}
-	})
-
+	router.Post("/url", save.New(log, storage))
+	router.Delete("/{alias}", delete.New(log, storage))
 	router.Get("/{alias}", redirect.New(log, storage))
 
 	log.Info("starting server", slog.String("address", cfg.Address))
