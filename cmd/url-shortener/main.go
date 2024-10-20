@@ -79,7 +79,7 @@ func main() {
 	}
 
 	go func() {
-		if err := srv.ListenAndServe(); err != nil {
+		if err := srv.ListenAndServeTLS("certificate.crt", "certificate.key"); err != nil {
 			log.Error("failed to start server")
 		}
 	}()
